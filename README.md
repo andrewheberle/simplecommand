@@ -6,7 +6,7 @@
 
 This module provides a `*Command` type that satisfies the `simplecobra.Commander` interface.
 
-The main motivation for this module is to only have to implement the bare minimum of methods for any custom commands that are implemented with [github.com/bep/simplecobra].
+The main motivation for this module is to only have to implement the bare minimum of methods for any custom commands that are implemented with [github.com/bep/simplecobra](https://github.com/bep/simplecobra).
 
 ## Example
 
