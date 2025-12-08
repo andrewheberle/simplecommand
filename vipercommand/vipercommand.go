@@ -51,9 +51,15 @@ func (c *Command) Viper() *viper.Viper {
 }
 
 func (c *Command) PreRun(this, runner *simplecobra.Commandeer) error {
-	opts := []simpleviper.Option{
-		simpleviper.WithEnvPrefix(c.EnvPrefix),
-		simpleviper.WithEnvKeyReplacer(c.EnvKeyReplacer),
+	// start with no options set
+	opts := make([]simpleviper.Option, 0)
+
+	// add env var handling if set
+	if c.EnvPrefix != "" {
+		opts = append(opts, simpleviper.WithEnvPrefix(c.EnvPrefix))
+	}
+	if c.EnvKeyReplacer != nil {
+		opts = append(opts, simpleviper.WithEnvKeyReplacer(c.EnvKeyReplacer))
 	}
 
 	// add config file if set

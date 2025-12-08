@@ -73,3 +73,25 @@ func ExampleNew() {
 
 	// Output: Ran "example-command" with the example flag set to "from env var"
 }
+
+func ExampleNew_withconfig() {
+	// Here we create a simple command using our custom type with Viper enabled
+	command := &viperCommand{
+		Command: vipercommand.New("example-command", "This is an example command (with fangs!)"),
+	}
+	// set our config file
+	command.Config = "testconfig.yml"
+
+	// Set up simplecobra
+	x, err := simplecobra.New(command)
+	if err != nil {
+		panic(err)
+	}
+
+	// run our command with no arguments so our example flag is set from the configuration file, in a real program args would be os.Args[1:]
+	if _, err := x.Execute(context.Background(), []string{}); err != nil {
+		panic(err)
+	}
+
+	// Output: Ran "example-command" with the example flag set to "from config file"
+}
