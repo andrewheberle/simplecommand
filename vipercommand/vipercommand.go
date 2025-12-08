@@ -16,18 +16,23 @@ type Command struct {
 	// Allow missing config file when Config is set
 	ConfigOptional bool
 
-	// Enviroment variable handling with Viper. See [viper.SetEnvPrefix] for details.
+	// Enviroment variable handling with Viper. See [viper.SetEnvPrefix] for
+	// details
 	EnvPrefix string
 
-	// Enviroment variable handling with Viper. See [viper.SetEnvKeyReplacer] for details.
+	// Enviroment variable handling with Viper. See [viper.SetEnvKeyReplacer]
+	// for details
 	EnvKeyReplacer *strings.Replacer
 
 	viperlet *simpleviper.Viperlet
 
+	// [*simplecommand.Command] is embedded to satsify the
+	// [simplecobra.Commander] interface
 	*simplecommand.Command
 }
 
-// New creates a bare minimum [*Command] with a name and a short description set
+// New creates a bare minimum [*Command] with a name and a short description
+// set
 func New(name, short string, opts ...simplecommand.CommandOption) *Command {
 	c := &simplecommand.Command{
 		CommandName: name,

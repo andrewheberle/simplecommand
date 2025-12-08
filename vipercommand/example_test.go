@@ -66,8 +66,8 @@ func ExampleNew() {
 	// set our env var
 	os.Setenv("CMD_EXAMPLE", "from env var")
 
-	// run our command with no arguments so our example flag is set from the environment, in a real program args would be os.Args[1:]
-	if _, err := x.Execute(context.Background(), []string{}); err != nil {
+	// run our command with no arguments so our example flag is set from the environment
+	if _, err := x.Execute(context.Background(), os.Args[1:]); err != nil {
 		panic(err)
 	}
 
@@ -88,8 +88,8 @@ func ExampleNew_withconfig() {
 		panic(err)
 	}
 
-	// run our command with no arguments so our example flag is set from the configuration file, in a real program args would be os.Args[1:]
-	if _, err := x.Execute(context.Background(), []string{}); err != nil {
+	// run our command with no arguments so our example flag is set from the configuration file
+	if _, err := x.Execute(context.Background(), os.Args[1:]); err != nil {
 		panic(err)
 	}
 
