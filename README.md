@@ -54,3 +54,17 @@ func main() {
     }
 }
 ```
+
+## Viper Integration
+
+[![GoDoc](https://godoc.org/github.com/andrewheberle/simplecommand/vipercommand?status.svg)](https://godoc.org/github.com/andrewheberle/simplecommand/vipercommand)
+
+An alternate implementation of the `simplecobra.Commander` interface is
+provided by `*vipercommand.Command`.
+
+This functionality was previously included in `*Command` however this mean that
+`viper` and it's associated dependencies were required even if these features
+were not used.
+
+To use this functionality you can simple replace `*simpleviper.Command` in your
+command's struct with `*vipercommand.Command`.
