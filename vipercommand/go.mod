@@ -3,7 +3,7 @@ module github.com/andrewheberle/simplecommand/vipercommand
 go 1.25.4
 
 require (
-	github.com/andrewheberle/simplecommand v0.5.0
+	github.com/andrewheberle/simplecommand v0.5.1
 	github.com/andrewheberle/simpleviper v1.2.0
 	github.com/bep/simplecobra v0.7.0
 	github.com/spf13/pflag v1.0.10
