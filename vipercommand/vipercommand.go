@@ -6,6 +6,7 @@ import (
 	"github.com/andrewheberle/simplecommand"
 	"github.com/andrewheberle/simpleviper"
 	"github.com/bep/simplecobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
@@ -55,7 +56,7 @@ func (c *Command) Viper() *viper.Viper {
 	return c.viperlet.Viper()
 }
 
-func (c *Command) PreRun(this, runner *simplecobra.Commandeer) error {
+func (c *Command) Init(cd *simplecobra.Commandeer) error {
 	// start with no options set
 	opts := make([]simpleviper.Option, 0)
 
@@ -80,9 +81,20 @@ func (c *Command) PreRun(this, runner *simplecobra.Commandeer) error {
 	c.viperlet = simpleviper.New(opts...)
 
 	// bring in env vars and bind to flagset
-	if err := c.viperlet.Init(this.CobraCommand.Flags()); err != nil {
+	if err := c.viperlet.Init(cd.CobraCommand.Flags()); err != nil {
 		return err
 	}
 
-	return nil
+	return c.Command.Init(cd)
+}
+
+func (c *Command) PreRun(this, runner *simplecobra.Commandeer) error {
+	// set any values from viper as flags once other steps are done
+	this.CobraCommand.Flags().VisitAll(func(f *pflag.Flag) {
+		if c.Viper().IsSet(f.Name) && c.Viper().GetString(f.Name) != "" {
+			this.CobraCommand.Flags().Set(f.Name, c.Viper().GetString(f.Name))
+		}
+	})
+
+	return c.Command.PreRun(this, runner)
 }
