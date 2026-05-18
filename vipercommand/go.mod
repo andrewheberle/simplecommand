@@ -2,8 +2,6 @@ module github.com/andrewheberle/simplecommand/vipercommand
 
 go 1.25.4
 
-replace github.com/andrewheberle/simplecommand => ../
-
 require (
 	github.com/andrewheberle/simplecommand v0.5.0
 	github.com/andrewheberle/simpleviper v1.2.0
