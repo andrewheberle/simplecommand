@@ -1,8 +1,8 @@
 module github.com/andrewheberle/simplecommand
 
-go 1.25
+go 1.26
 
-require github.com/bep/simplecobra v0.7.0
+require github.com/bep/simplecobra v0.8.0
 
 require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
