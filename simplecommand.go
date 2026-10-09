@@ -1,7 +1,7 @@
-// The package simplecommand reduces to amount of boilerplate code required to
-// use [simplecobra] as it provides a [*Command] type that satisfies the
+// The package simplecommand reduces the amount of boilerplate code required to
+// use [simplecobra] as it provides a [Command] type that satisfies the
 // [simplecobra.Commander] that you can embed within your own custom type and
-// implement your own [*Command.Init], [*Command.PreRun] and [*Command.Run]
+// implement your own [Command.Init], [Command.PreRun] and [Command.Run]
 // methods as required.
 package simplecommand
 
@@ -12,7 +12,7 @@ import (
 )
 
 // Command is the basis for creating your own [simplecobra.Commander] quickly.
-// A [*Command] satisfies the [simplecobra.Commander] interface and is best
+// A [Command] satisfies the [simplecobra.Commander] interface and is best
 // used by embedding it in your own struct.
 type Command struct {
 	// CommandName is used as the commands name for any help pages
@@ -29,7 +29,7 @@ type Command struct {
 	SubCommands []simplecobra.Commander
 }
 
-// New creates a bare minimum [*Command] with a name and a short description
+// New creates a bare minimum [Command] with a name and a short description
 // set
 func New(name, short string, opts ...CommandOption) *Command {
 	c := &Command{
@@ -88,18 +88,18 @@ func (c *Command) Run(ctx context.Context, cd *simplecobra.Commandeer, args []st
 	return nil
 }
 
-// A CommandOption is passed to [New] to change the defaults of the [*Command]
+// A CommandOption is passed to [New] to change the defaults of the [Command]
 type CommandOption func(*Command)
 
 // Long sets the long description of the command when the default
-// [*Command.Init] is used.
+// [Command.Init] is used.
 func Long(description string) CommandOption {
 	return func(c *Command) {
 		c.Long = description
 	}
 }
 
-// Deprecated sets command as deprecated when the default [*Command.Init] is used.
+// Deprecated sets command as deprecated when the default [Command.Init] is used.
 func Deprecated(reason string) CommandOption {
 	return func(c *Command) {
 		c.Deprecated = reason
