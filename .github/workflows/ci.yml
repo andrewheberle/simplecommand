@@ -26,6 +26,8 @@ jobs:
             path: .
           - module: vipercommand
             path: vipercommand
+          - module: koanfcommand
+            path: koanfcommand
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -62,6 +64,10 @@ jobs:
         working-directory: vipercommand
         run: go vet ./...
 
+      - name: Run koanfcommand vet
+        working-directory: koanfcommand
+        run: go vet ./...
+
       - name: Run tests
         run: go test -race -coverprofile=coverage.txt ./...
 
@@ -69,21 +75,34 @@ jobs:
         working-directory: vipercommand
         run: go test -race -coverprofile=../coverage-vipercommand.txt ./...
 
+      - name: Run koanfcommand tests
+        working-directory: koanfcommand
+        run: go test -race -coverprofile=../coverage-koanfcommand.txt ./...
+
       - name: Upload results to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: andrewheberle/simplecommand
-          files: ./coverage.txt,./coverage-vipercommand.txt
+          files: ./coverage.txt,./coverage-vipercommand.txt,./coverage-koanfcommand.txt
 
-      # vipercommand normally builds against the published simplecommand, so
-      # also test it against the local copy to catch breaking changes before
-      # a new simplecommand release
+      # vipercommand and koanfcommand normally build against the published
+      # simplecommand, so also test them against the local copy to catch
+      # breaking changes before a new simplecommand release
       - name: Run vipercommand tests against local simplecommand
         working-directory: vipercommand
         env:
           GOWORK: ${{ runner.temp }}/go.work
         run: |
           go work init "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/vipercommand"
+          go vet ./...
+          go test -race ./...
+
+      - name: Run koanfcommand tests against local simplecommand
+        working-directory: koanfcommand
+        env:
+          GOWORK: ${{ runner.temp }}/koanfcommand.work
+        run: |
+          go work init "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/koanfcommand"
           go vet ./...
           go test -race ./...
