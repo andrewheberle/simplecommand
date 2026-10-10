@@ -4,6 +4,8 @@ github.com/andrewheberle/simpleviper v1.2.0 h1:pg+4BF5MmxQ8r7I3UmWz6w56z0akYyQ1C
 github.com/andrewheberle/simpleviper v1.2.0/go.mod h1:h27fll0wuI9Q3m5YfqFBnSy3oqCreQLBBnw0Yro+IGE=
 github.com/bep/simplecobra v0.7.0 h1:kG8ZPwEc1o96hlIVGXcrrvwC8RornBqvMD3+pS0Z7y0=
 github.com/bep/simplecobra v0.7.0/go.mod h1:PDXvBWH1ZMX05DRQ25ub/C6kKUuq+jROPgjbVz8wO1g=
+github.com/bep/simplecobra v0.8.0 h1:s9rOX0I9rk5gujqaEanfAutlBNjPxsLMt58ygmzng18=
+github.com/bep/simplecobra v0.8.0/go.mod h1:gyoaW6x8y36723fumVwwC7oe66L20AbxGBNED5m9PKA=
 github.com/cpuguy83/go-md2man/v2 v2.0.6/go.mod h1:oOW0eioCTA6cOiMLiUPZOpcVxMig6NIQQ7OS05n1F4g=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
