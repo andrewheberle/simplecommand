@@ -117,11 +117,22 @@ func (c *Command) PreRun(this, runner *simplecobra.Commandeer) error {
 	// any flags set on the command line so they take precedence
 	var err error
 	this.CobraCommand.Flags().VisitAll(func(f *pflag.Flag) {
-		if err != nil || f.Changed {
+		if err != nil || f.Changed || !c.Viper().IsSet(f.Name) {
 			return
 		}
-		if c.Viper().IsSet(f.Name) && c.Viper().GetString(f.Name) != "" {
-			err = this.CobraCommand.Flags().Set(f.Name, c.Viper().GetString(f.Name))
+
+		// a list from the configuration file has no string form, so replace
+		// the values of a slice flag directly
+		if sv, ok := f.Value.(pflag.SliceValue); ok {
+			switch c.Viper().Get(f.Name).(type) {
+			case []any, []string:
+				err = sv.Replace(c.Viper().GetStringSlice(f.Name))
+				return
+			}
+		}
+
+		if s := c.Viper().GetString(f.Name); s != "" {
+			err = this.CobraCommand.Flags().Set(f.Name, s)
 		}
 	})
 	if err != nil {

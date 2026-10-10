@@ -87,6 +87,44 @@ func TestSliceFlagNotAppended(t *testing.T) {
 	}
 }
 
+func TestSliceFlagPrecedence(t *testing.T) {
+	tests := []struct {
+		name string
+		env  string
+		args []string
+		want []string
+	}{
+		{"flag beats config", "", []string{"--list", "z"}, []string{"z"}},
+		{"env beats config", "x,y", nil, []string{"x", "y"}},
+		{"config list used when nothing else set", "", nil, []string{"from", "config"}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			command := &typedCommand{
+				Command: vipercommand.New("example-command", "This is an example command"),
+			}
+			command.EnvPrefix = "cmd"
+			command.Config = "testconfig.yml"
+			if tt.env != "" {
+				t.Setenv("CMD_LIST", tt.env)
+			}
+
+			x, err := simplecobra.New(command)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err := x.Execute(t.Context(), tt.args); err != nil {
+				t.Fatal(err)
+			}
+
+			if !slices.Equal(command.list, tt.want) {
+				t.Errorf("got %q, want %q", command.list, tt.want)
+			}
+		})
+	}
+}
+
 func TestInvalidEnvValue(t *testing.T) {
 	command := &typedCommand{
 		Command: vipercommand.New("example-command", "This is an example command"),
