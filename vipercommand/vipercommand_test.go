@@ -1,7 +1,6 @@
 package vipercommand_test
 
 import (
-	"context"
 	"slices"
 	"testing"
 
@@ -38,7 +37,7 @@ func TestFlagPrecedence(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if _, err := x.Execute(context.Background(), tt.args); err != nil {
+			if _, err := x.Execute(t.Context(), tt.args); err != nil {
 				t.Fatal(err)
 			}
 
@@ -79,7 +78,7 @@ func TestSliceFlagNotAppended(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := x.Execute(context.Background(), []string{"--list", "z"}); err != nil {
+	if _, err := x.Execute(t.Context(), []string{"--list", "z"}); err != nil {
 		t.Fatal(err)
 	}
 
@@ -99,7 +98,7 @@ func TestInvalidEnvValue(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := x.Execute(context.Background(), nil); err == nil {
+	if _, err := x.Execute(t.Context(), nil); err == nil {
 		t.Error("expected an error for an invalid value from the environment, got nil")
 	}
 }
