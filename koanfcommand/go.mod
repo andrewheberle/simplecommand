@@ -3,7 +3,7 @@ module github.com/andrewheberle/simplecommand/koanfcommand
 go 1.26
 
 require (
-	github.com/andrewheberle/simplecommand v0.7.0
+	github.com/andrewheberle/simplecommand v0.8.0
 	github.com/bep/simplecobra v0.8.0
 	github.com/knadh/koanf/parsers/json v1.0.1
 	github.com/knadh/koanf/parsers/toml/v2 v2.2.2
