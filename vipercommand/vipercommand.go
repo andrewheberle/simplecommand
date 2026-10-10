@@ -49,7 +49,7 @@ var _ simplecobra.Commander = (*Command)(nil)
 
 // New creates a bare minimum [*Command] with a name and a short description
 // set
-func New(name, short string, opts ...simplecommand.CommandOption) *Command {
+func New(name, short string, opts ...simplecommand.Option) *Command {
 	return &Command{
 		Command: simplecommand.New(name, short, opts...),
 	}
