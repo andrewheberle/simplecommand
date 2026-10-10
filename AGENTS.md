@@ -83,6 +83,10 @@ CI (`.github/workflows/ci.yml`) runs the same steps on pull requests and on
 pushes to `main`. `go vet` and the tests must pass in both modules before you
 commit.
 
+When editing workflows, pin every action to a full commit SHA with the
+release as a comment (`uses: owner/action@<sha> # vX.Y.Z`). Renovate keeps
+these up to date.
+
 CI also runs the `vipercommand` vet and tests against the local
 `simplecommand` through a temporary `go.work`. This catches a `simplecommand`
 change that would break `vipercommand` before it is released. If only this
@@ -159,7 +163,8 @@ Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):
   `BREAKING CHANGE:` footer describing the migration.
 
 Pull requests are squash-merged, so the PR title becomes the commit message
-on `main` and must follow the same format.
+on `main` and must follow the same format. The `PR title` workflow
+(`.github/workflows/pr-title.yml`) fails if it doesn't.
 
 Keep each commit to one logical change. For example, put a bug fix and an
 unrelated docs fix in separate commits.
