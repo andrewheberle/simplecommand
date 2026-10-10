@@ -21,11 +21,27 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
+      - name: Install vipercommand dependencies
+        working-directory: vipercommand
+        run: go mod download
+
+      - name: Run vet
+        run: go vet ./...
+
+      - name: Run vipercommand vet
+        working-directory: vipercommand
+        run: go vet ./...
+
       - name: Run tests
-        run: go test -coverprofile=coverage.txt
+        run: go test -race -coverprofile=coverage.txt ./...
+
+      - name: Run vipercommand tests
+        working-directory: vipercommand
+        run: go test -race -coverprofile=../coverage-vipercommand.txt ./...
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: andrewheberle/simplecommand
+          files: ./coverage.txt,./coverage-vipercommand.txt

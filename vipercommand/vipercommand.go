@@ -89,12 +89,20 @@ func (c *Command) Init(cd *simplecobra.Commandeer) error {
 }
 
 func (c *Command) PreRun(this, runner *simplecobra.Commandeer) error {
-	// set any values from viper as flags once other steps are done
+	// set any values from viper as flags once other steps are done, skipping
+	// any flags set on the command line so they take precedence
+	var err error
 	this.CobraCommand.Flags().VisitAll(func(f *pflag.Flag) {
+		if err != nil || f.Changed {
+			return
+		}
 		if c.Viper().IsSet(f.Name) && c.Viper().GetString(f.Name) != "" {
-			this.CobraCommand.Flags().Set(f.Name, c.Viper().GetString(f.Name))
+			err = this.CobraCommand.Flags().Set(f.Name, c.Viper().GetString(f.Name))
 		}
 	})
+	if err != nil {
+		return err
+	}
 
 	return c.Command.PreRun(this, runner)
 }
