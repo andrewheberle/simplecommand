@@ -1,4 +1,4 @@
-// The package simplecommand reduces the amount of boilerplate code required to
+// Package simplecommand reduces the amount of boilerplate code required to
 // use [simplecobra] as it provides a [Command] type that satisfies the
 // [simplecobra.Commander] that you can embed within your own custom type and
 // implement your own [Command.Init], [Command.PreRun] and [Command.Run]

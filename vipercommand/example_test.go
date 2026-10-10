@@ -69,8 +69,14 @@ func ExampleNew() {
 	}
 
 	// set our env var
-	os.Setenv("CMD_EXAMPLE", "from env var")
-	defer os.Unsetenv("CMD_EXAMPLE")
+	if err := os.Setenv("CMD_EXAMPLE", "from env var"); err != nil {
+		panic(err)
+	}
+	defer func() {
+		if err := os.Unsetenv("CMD_EXAMPLE"); err != nil {
+			panic(err)
+		}
+	}()
 
 	// run our command with no arguments so our example flag is set from the environment
 	if _, err := x.Execute(context.Background(), nil); err != nil {
@@ -120,11 +126,17 @@ func ExampleNew_withEnvKeyReplacer() {
 		panic(err)
 	}
 
-	// set our env long var
-	os.Setenv("CMD_EXAMPLE_FLAG", "from env var")
-	defer os.Unsetenv("CMD_EXAMPLE_FLAG")
+	// set our env var for the long flag
+	if err := os.Setenv("CMD_EXAMPLE_FLAG", "from env var"); err != nil {
+		panic(err)
+	}
+	defer func() {
+		if err := os.Unsetenv("CMD_EXAMPLE_FLAG"); err != nil {
+			panic(err)
+		}
+	}()
 
-	// run our command with no arguments so our example flag is set from the configuration file
+	// run our command with no arguments so our long flag is set from the environment
 	if _, err := x.Execute(context.Background(), nil); err != nil {
 		panic(err)
 	}

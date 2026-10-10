@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+# cancel superseded runs for the same branch or pull request
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint (${{ matrix.module }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - module: simplecommand
+            path: .
+          - module: vipercommand
+            path: vipercommand
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.25'
+          cache-dependency-path: '**/go.sum'
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
+        with:
+          version: v2.14.0
+          working-directory: ${{ matrix.path }}
+
+  test:
+    name: Run tests and collect coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.25'
+          cache-dependency-path: '**/go.sum'
+
+      - name: Run vet
+        run: go vet ./...
+
+      - name: Run vipercommand vet
+        working-directory: vipercommand
+        run: go vet ./...
+
+      - name: Run tests
+        run: go test -race -coverprofile=coverage.txt ./...
+
+      - name: Run vipercommand tests
+        working-directory: vipercommand
+        run: go test -race -coverprofile=../coverage-vipercommand.txt ./...
+
+      - name: Upload results to Codecov
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: andrewheberle/simplecommand
+          files: ./coverage.txt,./coverage-vipercommand.txt
+
+      # vipercommand normally builds against the published simplecommand, so
+      # also test it against the local copy to catch breaking changes before
+      # a new simplecommand release
+      - name: Run vipercommand tests against local simplecommand
+        working-directory: vipercommand
+        env:
+          GOWORK: ${{ runner.temp }}/go.work
+        run: |
+          go work init "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/vipercommand"
+          go vet ./...
+          go test -race ./...
