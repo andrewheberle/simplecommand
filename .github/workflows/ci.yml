@@ -1,29 +1,59 @@
-name: Run tests and upload coverage
+name: CI
 
-on: 
-  push
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+# cancel superseded runs for the same branch or pull request
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  lint:
+    name: Lint (${{ matrix.module }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - module: simplecommand
+            path: .
+          - module: vipercommand
+            path: vipercommand
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: '1.25'
+          cache-dependency-path: '**/go.sum'
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.14.0
+          working-directory: ${{ matrix.path }}
+
   test:
     name: Run tests and collect coverage
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-        with:
-          fetch-depth: 2
 
       - name: Set up Go
         uses: actions/setup-go@v7
         with:
           go-version: '1.25'
-
-      - name: Install dependencies
-        run: go mod download
-
-      - name: Install vipercommand dependencies
-        working-directory: vipercommand
-        run: go mod download
+          cache-dependency-path: '**/go.sum'
 
       - name: Run vet
         run: go vet ./...
