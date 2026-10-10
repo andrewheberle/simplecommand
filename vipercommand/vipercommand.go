@@ -1,4 +1,4 @@
-// The package vipercommand provides a [Command] type that, like
+// Package vipercommand provides a [Command] type that, like
 // [simplecommand.Command], satisfies the [simplecobra.Commander] interface but
 // also allows command line flags to be set from environment variables and a
 // configuration file via [viper].
