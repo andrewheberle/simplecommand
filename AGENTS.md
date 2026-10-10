@@ -51,7 +51,7 @@ release:
 - Other types (`docs:`, `test:`, `ci:`, `chore:` and so on) don't trigger a
   release by themselves.
 - A commit counts towards a module if it changes files in that module.
-  `vipercommand/` is excluded from the root module.
+  `vipercommand/` and `.github/` are excluded from the root module.
 - Configuration lives in `release-please-config.json`. The current version of
   each module is in `.release-please-manifest.json`, which release-please
   updates itself.
@@ -168,6 +168,16 @@ on `main` and must follow the same format. The `PR title` workflow
 
 Keep each commit to one logical change. For example, put a bug fix and an
 unrelated docs fix in separate commits.
+
+**Keep changes to each module in separate pull requests.** A squash-merged
+PR becomes one commit, and release-please counts that commit towards every
+module whose files it changes, whatever its scope. Every file outside
+`vipercommand/` belongs to the root module, apart from `.github/` (excluded in
+`release-please-config.json`). So a `fix(vipercommand):` or
+`feat(vipercommand):` PR must only change files under `vipercommand/` or
+`.github/`. Otherwise it also triggers a root module release. Put any other
+changes, including to `AGENTS.md`, the README or `.golangci.yml`, in a
+separate PR.
 
 ## Implementing tests
 
