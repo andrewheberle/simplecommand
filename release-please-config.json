@@ -8,12 +8,18 @@
     ".": {
       "component": "simplecommand",
       "include-component-in-tag": false,
-      "exclude-paths": ["vipercommand", ".github"]
+      "exclude-paths": ["vipercommand", "koanfcommand", ".github"]
     },
     "vipercommand": {
       "component": "vipercommand",
       "include-component-in-tag": true,
       "tag-separator": "/"
+    },
+    "koanfcommand": {
+      "component": "koanfcommand",
+      "include-component-in-tag": true,
+      "tag-separator": "/",
+      "initial-version": "0.1.0"
     }
   }
 }
