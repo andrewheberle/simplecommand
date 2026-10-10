@@ -68,6 +68,10 @@ When a `vipercommand` or `koanfcommand` change needs an unreleased change in
    `go get github.com/andrewheberle/simplecommand@vX.Y.Z && go mod tidy`.
 3. Merge the module's change, then merge its release PR.
 
+## Code conventions
+- Go version: [1.26], per `go.mod`. Don't bump it unless asked.
+- Dependencies: prefer the standard library. Ask before adding a new module dependency. Run `go mod tidy` after any dependency change.
+
 ## Running tests
 
 Commands run from the root only cover the root module, so always run them in
@@ -215,3 +219,8 @@ separate PR.
 - **For `vipercommand` and `koanfcommand`, test the precedence order:** command line flag, then
   environment variable, then configuration file, then flag default.
 - Coverage is reported to Codecov. New code should not reduce coverage.
+
+## Boundaries
+- Don't commit secrets, tokens, or real config values.
+- Don't modify generated files; regenerate them with `go generate ./...`.
+- Keep changes scoped to the task. No drive-by refactors or renames.
