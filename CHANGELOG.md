@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/andrewheberle/simplecommand/compare/v0.7.1...v0.8.0) (2026-10-10)
+
+
+### Features
+
+* add WithAliases, WithExample, WithArgs, WithHidden and WithVersion ([#44](https://github.com/andrewheberle/simplecommand/issues/44)) ([f011b6c](https://github.com/andrewheberle/simplecommand/commit/f011b6c77291dd2cf9e543ec50671068ee6c5480))
+
 ## [0.7.1](https://github.com/andrewheberle/simplecommand/compare/v0.7.0...v0.7.1) (2026-10-10)
 
 
