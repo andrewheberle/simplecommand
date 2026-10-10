@@ -67,3 +67,19 @@ were not used.
 
 To use this functionality you can simply replace `*simplecommand.Command` in your
 command's struct with `*vipercommand.Command`.
+
+## koanf Integration
+
+[![GoDoc](https://godoc.org/github.com/andrewheberle/simplecommand/koanfcommand?status.svg)](https://godoc.org/github.com/andrewheberle/simplecommand/koanfcommand)
+
+`*koanfcommand.Command` provides the same features as `*vipercommand.Command`
+using [koanf](https://github.com/knadh/koanf) in place of `viper`, so builds
+with less than half as many third-party packages.
+
+It has the same `Config`, `ConfigOptional`, `EnvPrefix` and `EnvKeyReplacer`
+fields, so to use it you can replace `*vipercommand.Command` in your command's
+struct with `*koanfcommand.Command`. YAML, JSON and TOML configuration files
+are supported, chosen by file extension.
+
+As the configuration file is read once command line flags have been parsed,
+`Config` can also be set from a command line flag such as `--config`.
