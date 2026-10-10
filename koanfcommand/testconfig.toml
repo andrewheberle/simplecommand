@@ -1,0 +1,2 @@
+example = "from toml config file"
+list = ["from", "toml"]
