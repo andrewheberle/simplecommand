@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/andrewheberle/simplecommand/compare/v0.7.0...v0.7.1) (2026-10-10)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/bep/simplecobra to v0.8.0 ([#19](https://github.com/andrewheberle/simplecommand/issues/19)) ([c88b138](https://github.com/andrewheberle/simplecommand/commit/c88b138ac2cc515cc4201a3b692b0def457862be))
+
 ## [0.7.0](https://github.com/andrewheberle/simplecommand/compare/v0.6.0...v0.7.0) (2026-10-10)
 
 
