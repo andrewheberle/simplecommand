@@ -1,0 +1,6 @@
+# local multi-module development (see AGENTS.md)
+go.work
+go.work.sum
+
+# coverage output
+coverage*.txt
