@@ -13,15 +13,33 @@ This repository contains **two separate Go modules**:
 
 `vipercommand` depends on a **published** version of `simplecommand` (see
 `vipercommand/go.mod`), not the local copy. Do not add a `replace` directive.
-To test changes to both modules together, create a `go.work` file locally (it
-is in `.gitignore` and must not be committed):
+Users of `vipercommand` ignore `replace` directives, so testing against the
+local copy would hide breakage that users would then hit.
+
+To work on both modules together, create a `go.work` file in the repository
+root. It is in `.gitignore` and must not be committed:
 
 ```sh
 go work init . ./vipercommand
 ```
 
+While a `go.work` file exists, Go builds `vipercommand` against the local
+`simplecommand`. Before committing, also run the `vipercommand` tests with
+`GOWORK=off` to check them against the published version, which is what users
+get.
+
+### Releases
+
 Releases are tagged per module: `vX.Y.Z` for the root module and
 `vipercommand/vX.Y.Z` for the submodule.
+
+When a `vipercommand` change needs an unreleased change in `simplecommand`,
+release in this order:
+
+1. Merge the `simplecommand` change and tag it (`vX.Y.Z`).
+2. In `vipercommand/`, run
+   `go get github.com/andrewheberle/simplecommand@vX.Y.Z && go mod tidy`.
+3. Merge the `vipercommand` change and tag it (`vipercommand/vX.Y.Z`).
 
 ## Running tests
 
@@ -39,6 +57,18 @@ go test -race -cover ./...
 
 CI (`.github/workflows/codecov.yml`) runs the same steps on every push.
 `go vet` and the tests must pass in both modules before you commit.
+
+CI also runs the `vipercommand` vet and tests against the local
+`simplecommand` through a temporary `go.work`. This catches a `simplecommand`
+change that would break `vipercommand` before it is released. If only this
+step fails, fix `vipercommand` or rethink the `simplecommand` change. Don't
+work around it with a `replace` directive. To reproduce it locally:
+
+```sh
+cd vipercommand
+GOWORK="$(mktemp -d)/go.work" sh -c \
+  'go work init .. . && go vet ./... && go test -race ./...'
+```
 
 After changing dependencies, run `go mod tidy` in the affected module.
 
