@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "go",
+  "bump-minor-pre-major": true,
+  "separate-pull-requests": true,
+  "include-v-in-tag": true,
+  "packages": {
+    ".": {
+      "component": "simplecommand",
+      "include-component-in-tag": false,
+      "exclude-paths": ["vipercommand"]
+    },
+    "vipercommand": {
+      "component": "vipercommand",
+      "include-component-in-tag": true,
+      "tag-separator": "/"
+    }
+  }
+}
