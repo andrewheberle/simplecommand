@@ -37,7 +37,7 @@ var _ simplecobra.Commander = (*Command)(nil)
 
 // New creates a bare minimum [Command] with a name and a short description
 // set
-func New(name, short string, opts ...CommandOption) *Command {
+func New(name, short string, opts ...Option) *Command {
 	c := &Command{
 		CommandName: name,
 		Short:       short,
@@ -64,7 +64,7 @@ func (c *Command) Commands() []simplecobra.Commander {
 // Init is where the short and long description of the command are set and also
 // where command line flags can be handled.
 // The default is only suitable for implementing a deprecated command (see the
-// [Deprecated] [CommandOption]) or a command that does not make use of any
+// [WithDeprecated] [Option]) or a command that does not make use of any
 // command line flags.
 //
 // See [simplecobra.Commander] for more information.
@@ -96,20 +96,49 @@ func (c *Command) Run(ctx context.Context, cd *simplecobra.Commandeer, args []st
 	return nil
 }
 
-// A CommandOption is passed to [New] to change the defaults of the [Command]
-type CommandOption func(*Command)
+// An Option is passed to [New] to change the defaults of the [Command]
+type Option func(*Command)
 
-// Long sets the long description of the command when the default
+// WithLong sets the long description of the command when the default
 // [Command.Init] is used.
-func Long(description string) CommandOption {
+func WithLong(description string) Option {
 	return func(c *Command) {
 		c.Long = description
 	}
 }
 
-// Deprecated sets command as deprecated when the default [Command.Init] is used.
-func Deprecated(reason string) CommandOption {
+// WithDeprecated sets command as deprecated when the default [Command.Init] is used.
+func WithDeprecated(reason string) Option {
 	return func(c *Command) {
 		c.Deprecated = reason
 	}
+}
+
+// WithSubCommands adds sub-commands to the command during [New]. It may be
+// passed more than once, with each call adding to any existing sub-commands.
+func WithSubCommands(subcommands ...simplecobra.Commander) Option {
+	return func(c *Command) {
+		c.SubCommands = append(c.SubCommands, subcommands...)
+	}
+}
+
+// CommandOption is the previous name of [Option].
+//
+// Deprecated: Use [Option].
+type CommandOption = Option
+
+// Long sets the long description of the command when the default
+// [Command.Init] is used.
+//
+// Deprecated: Use [WithLong].
+func Long(description string) Option {
+	return WithLong(description)
+}
+
+// Deprecated sets command as deprecated when the default [Command.Init] is
+// used.
+//
+// Deprecated: Use [WithDeprecated].
+func Deprecated(reason string) Option {
+	return WithDeprecated(reason)
 }
