@@ -8,7 +8,7 @@
     ".": {
       "component": "simplecommand",
       "include-component-in-tag": false,
-      "exclude-paths": ["vipercommand"]
+      "exclude-paths": ["vipercommand", ".github"]
     },
     "vipercommand": {
       "component": "vipercommand",
