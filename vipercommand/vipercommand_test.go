@@ -103,3 +103,11 @@ func TestInvalidEnvValue(t *testing.T) {
 		t.Error("expected an error for an invalid value from the environment, got nil")
 	}
 }
+
+func TestViperBeforeInit(t *testing.T) {
+	command := vipercommand.New("example-command", "This is an example command")
+
+	if v := command.Viper(); v != nil {
+		t.Errorf("expected nil before Init, got %v", v)
+	}
+}

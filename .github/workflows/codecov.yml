@@ -45,3 +45,15 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: andrewheberle/simplecommand
           files: ./coverage.txt,./coverage-vipercommand.txt
+
+      # vipercommand normally builds against the published simplecommand, so
+      # also test it against the local copy to catch breaking changes before
+      # a new simplecommand release
+      - name: Run vipercommand tests against local simplecommand
+        working-directory: vipercommand
+        env:
+          GOWORK: ${{ runner.temp }}/go.work
+        run: |
+          go work init "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/vipercommand"
+          go vet ./...
+          go test -race ./...

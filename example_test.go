@@ -82,7 +82,9 @@ type ourCommand struct {
 // to minimise our work a little (ie setting "Short", "Long" and "Deprecated")
 func (c *ourCommand) Init(cd *simplecobra.Commandeer) error {
 	// run default Init to set up Long/Short/Deprecated
-	c.Command.Init(cd)
+	if err := c.Command.Init(cd); err != nil {
+		return err
+	}
 
 	cmd := cd.CobraCommand
 	cmd.Flags().StringVar(&c.exampleFlag, "example", "", "Example flag")

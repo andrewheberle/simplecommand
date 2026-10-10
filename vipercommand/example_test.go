@@ -73,7 +73,7 @@ func ExampleNew() {
 	defer os.Unsetenv("CMD_EXAMPLE")
 
 	// run our command with no arguments so our example flag is set from the environment
-	if _, err := x.Execute(context.Background(), os.Args[1:]); err != nil {
+	if _, err := x.Execute(context.Background(), nil); err != nil {
 		panic(err)
 	}
 
@@ -97,7 +97,7 @@ func ExampleNew_withconfig() {
 	}
 
 	// run our command with no arguments so our example flag is set from the configuration file
-	if _, err := x.Execute(context.Background(), os.Args[1:]); err != nil {
+	if _, err := x.Execute(context.Background(), nil); err != nil {
 		panic(err)
 	}
 
@@ -125,7 +125,7 @@ func ExampleNew_withEnvKeyReplacer() {
 	defer os.Unsetenv("CMD_EXAMPLE_FLAG")
 
 	// run our command with no arguments so our example flag is set from the configuration file
-	if _, err := x.Execute(context.Background(), os.Args[1:]); err != nil {
+	if _, err := x.Execute(context.Background(), nil); err != nil {
 		panic(err)
 	}
 

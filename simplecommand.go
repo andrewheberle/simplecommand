@@ -14,11 +14,14 @@ import (
 // Command is the basis for creating your own [simplecobra.Commander] quickly.
 // A [Command] satisfies the [simplecobra.Commander] interface and is best
 // used by embedding it in your own struct.
+//
+// When embedding, always set the embedded *Command (for example using [New]),
+// as a nil *Command will cause a panic when its methods are called.
 type Command struct {
-	// CommandName is used as the commands name for any help pages
+	// CommandName is used as the command's name for any help pages
 	CommandName string
 
-	// Short, Long and Deprecated are set to the commands short and long
+	// Short, Long and Deprecated are set to the command's short and long
 	// descriptions for help pages when using the default Init method however
 	// when implementing your own Init method you should set these yourself.
 	Short      string
@@ -28,6 +31,9 @@ type Command struct {
 	// SubCommands holds the list of sub-commands for this command
 	SubCommands []simplecobra.Commander
 }
+
+// ensure Command satisfies the simplecobra.Commander interface
+var _ simplecobra.Commander = (*Command)(nil)
 
 // New creates a bare minimum [Command] with a name and a short description
 // set
@@ -45,10 +51,12 @@ func New(name, short string, opts ...CommandOption) *Command {
 	return c
 }
 
+// Name returns the name of the command.
 func (c *Command) Name() string {
 	return c.CommandName
 }
 
+// Commands returns the sub-commands of the command.
 func (c *Command) Commands() []simplecobra.Commander {
 	return c.SubCommands
 }
@@ -79,7 +87,7 @@ func (c *Command) PreRun(this, runner *simplecobra.Commandeer) error {
 	return nil
 }
 
-// Run is where the command actually does it's work
+// Run is where the command actually does its work.
 // The default does no actual work, so is likely not suitable for any use case
 // except for possibly a deprecated command.
 //

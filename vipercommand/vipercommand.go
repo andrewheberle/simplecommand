@@ -1,3 +1,10 @@
+// The package vipercommand provides a [Command] type that, like
+// [simplecommand.Command], satisfies the [simplecobra.Commander] interface but
+// also allows command line flags to be set from environment variables and a
+// configuration file via [viper].
+//
+// Command line flags take precedence over environment variables, which take
+// precedence over values from the configuration file.
 package vipercommand
 
 import (
@@ -10,6 +17,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Command is the basis for creating your own [simplecobra.Commander] with
+// [viper] support and is best used by embedding it in your own struct.
+//
+// A [Command] should always be created using [New], as the embedded
+// [*simplecommand.Command] must not be nil.
 type Command struct {
 	// Config specifies a configuration file used
 	Config string
@@ -17,45 +29,49 @@ type Command struct {
 	// Allow missing config file when Config is set
 	ConfigOptional bool
 
-	// Enviroment variable handling with Viper. See [viper.SetEnvPrefix] for
+	// Environment variable handling with Viper. See [viper.SetEnvPrefix] for
 	// details
 	EnvPrefix string
 
-	// Enviroment variable handling with Viper. See [viper.SetEnvKeyReplacer]
+	// Environment variable handling with Viper. See [viper.SetEnvKeyReplacer]
 	// for details
 	EnvKeyReplacer *strings.Replacer
 
 	viperlet *simpleviper.Viperlet
 
-	// [*simplecommand.Command] is embedded to satsify the
+	// [*simplecommand.Command] is embedded to satisfy the
 	// [simplecobra.Commander] interface
 	*simplecommand.Command
 }
 
+// ensure Command satisfies the simplecobra.Commander interface
+var _ simplecobra.Commander = (*Command)(nil)
+
 // New creates a bare minimum [*Command] with a name and a short description
 // set
 func New(name, short string, opts ...simplecommand.CommandOption) *Command {
-	c := &simplecommand.Command{
-		CommandName: name,
-		Short:       short,
-	}
-
-	// set options
-	for _, o := range opts {
-		o(c)
-	}
-
 	return &Command{
-		Command: c,
+		Command: simplecommand.New(name, short, opts...),
 	}
 }
 
-// Viper allows access to the underlying [*viper.Viper] instance when enabled.
-// Warning: This will return nil if Viper is not enabled for this command.
+// Viper allows access to the underlying [*viper.Viper] instance.
+// Warning: This will return nil if called before [Command.Init] has run.
 func (c *Command) Viper() *viper.Viper {
+	if c.viperlet == nil {
+		return nil
+	}
+
 	return c.viperlet.Viper()
 }
 
+// Init sets up environment variable and configuration file handling, then
+// runs [simplecommand.Command.Init] to set the command's descriptions.
+//
+// If you implement your own Init method, it must call this method before
+// adding any command line flags.
+//
+// See [simplecobra.Commander] for more information.
 func (c *Command) Init(cd *simplecobra.Commandeer) error {
 	// start with no options set
 	opts := make([]simpleviper.Option, 0)
@@ -88,6 +104,14 @@ func (c *Command) Init(cd *simplecobra.Commandeer) error {
 	return c.Command.Init(cd)
 }
 
+// PreRun sets any command line flags that were not provided on the command
+// line from environment variables or the configuration file, then runs
+// [simplecommand.Command.PreRun].
+//
+// If you implement your own PreRun method, it must call this method before
+// using any command line flag values.
+//
+// See [simplecobra.Commander] for more information.
 func (c *Command) PreRun(this, runner *simplecobra.Commandeer) error {
 	// set any values from viper as flags once other steps are done, skipping
 	// any flags set on the command line so they take precedence
