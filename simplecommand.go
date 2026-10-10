@@ -22,9 +22,11 @@ type Command struct {
 	// CommandName is used as the command's name for any help pages
 	CommandName string
 
-	// Short, Long and Deprecated are set to the command's short and long
-	// descriptions for help pages when using the default Init method however
-	// when implementing your own Init method you should set these yourself.
+	// Short and Long are the command's short and long descriptions for help
+	// pages, and Deprecated marks the command as deprecated with the given
+	// reason. These are set on the command by the default Init method, so
+	// when implementing your own Init method call [Command.Init] from it, or
+	// set these yourself.
 	Short      string
 	Long       string
 	Deprecated string
@@ -70,12 +72,12 @@ func (c *Command) Commands() []simplecobra.Commander {
 	return c.SubCommands
 }
 
-// Init is where the descriptions and other settings of the command, such as
-// those set by [WithArgs] or [WithAliases], are applied and also where
-// command line flags can be handled.
-// The default is only suitable for implementing a deprecated command (see the
-// [WithDeprecated] [Option]) or a command that does not make use of any
-// command line flags.
+// Init applies the command's descriptions and other settings, such as those
+// set by [WithArgs] or [WithAliases], to the underlying [cobra.Command].
+//
+// The default adds no command line flags, so is suitable as is for a command
+// that has none. To add flags, implement your own Init method that calls this
+// one and then adds them, as shown in the examples for [New].
 //
 // See [simplecobra.Commander] for more information.
 func (c *Command) Init(cd *simplecobra.Commandeer) error {
