@@ -1,6 +1,5 @@
 # simplecommand
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/andrewheberle/simplecommand)](https://goreportcard.com/report/github.com/andrewheberle/simplecommand)
 [![GoDoc](https://godoc.org/github.com/andrewheberle/simplecommand?status.svg)](https://godoc.org/github.com/andrewheberle/simplecommand)
 [![codecov](https://codecov.io/gh/andrewheberle/simplecommand/graph/badge.svg?token=JEFWB2U0GY)](https://codecov.io/gh/andrewheberle/simplecommand)
 
