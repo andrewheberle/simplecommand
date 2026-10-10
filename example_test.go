@@ -34,11 +34,11 @@ func ExampleNew() {
 	//   -h, --help   help for example-command
 }
 
-func ExampleLong() {
+func ExampleWithLong() {
 	// Here we create a simple command that does nothing
 	command := simplecommand.New("example-command",
 		"This is an example command that does nothing",
-		simplecommand.Long(`Here is a much longer help description of this example-command
+		simplecommand.WithLong(`Here is a much longer help description of this example-command
 that is shown when the --help flag is provided.
 
 This can include line breaks and be as long as you like.`),
@@ -122,15 +122,13 @@ func ExampleNew_embedded() {
 
 func ExampleNew_subCommand() {
 	// Here we create a command that has one sub-command
-	rootCommand := simplecommand.New("example-command", "This is an example command that has a single sub-command")
-	rootCommand.SubCommands = []simplecobra.Commander{
-		&ourCommand{
-			Command: simplecommand.New("sub-command", "This is an example sub-command"),
-		},
-
-		// this sub-command will not appear in help output and will print its deprecated message if run
-		simplecommand.New("old-command", "This is an old-command", simplecommand.Deprecated("this should no longer be used")),
-	}
+	rootCommand := simplecommand.New("example-command", "This is an example command that has a single sub-command",
+		simplecommand.WithSubCommands(
+			&ourCommand{
+				Command: simplecommand.New("sub-command", "This is an example sub-command"),
+			},
+		),
+	)
 
 	// Set up simplecobra
 	x, err := simplecobra.New(rootCommand)
@@ -145,4 +143,71 @@ func ExampleNew_subCommand() {
 	}
 
 	// Output: Ran "sub-command" with the example flag set to "another value"
+}
+
+func ExampleWithSubCommands() {
+	// Here we create a command with two sub-commands, one of which is deprecated
+	rootCommand := simplecommand.New("example-command", "This is an example command with sub-commands",
+		simplecommand.WithSubCommands(
+			simplecommand.New("sub-command", "This is an example sub-command"),
+
+			// this sub-command will not appear in help output
+			simplecommand.New("old-command", "This is an old-command", simplecommand.WithDeprecated("use sub-command instead")),
+		),
+	)
+
+	// Set up simplecobra
+	x, err := simplecobra.New(rootCommand)
+	if err != nil {
+		panic(err)
+	}
+
+	// run our simplecobra command with the provided args, in a real program args would be os.Args[1:]
+	args := []string{"--help"}
+	if _, err := x.Execute(context.Background(), args); err != nil {
+		panic(err)
+	}
+
+	// Output:
+	// This is an example command with sub-commands
+	//
+	// Usage:
+	//   example-command [command] [flags]
+	//   example-command [command]
+	//
+	// Available Commands:
+	//   completion  Generate the autocompletion script for the specified shell
+	//   help        Help about any command
+	//   sub-command This is an example sub-command
+	//
+	// Flags:
+	//   -h, --help   help for example-command
+	//
+	// Use "example-command [command] --help" for more information about a command.
+}
+
+func ExampleWithDeprecated() {
+	// Here we create a command with a deprecated sub-command
+	rootCommand := simplecommand.New("example-command", "This is an example command with a deprecated sub-command",
+		simplecommand.WithSubCommands(
+			&ourCommand{
+				Command: simplecommand.New("old-command", "This is an old-command", simplecommand.WithDeprecated("use sub-command instead")),
+			},
+		),
+	)
+
+	// Set up simplecobra
+	x, err := simplecobra.New(rootCommand)
+	if err != nil {
+		panic(err)
+	}
+
+	// a deprecated command still runs, however a message is first written to
+	// stderr: Command "old-command" is deprecated, use sub-command instead
+	args := []string{"old-command", "--example", "still works"}
+	if _, err := x.Execute(context.Background(), args); err != nil {
+		panic(err)
+	}
+
+	// Output: Ran "old-command" with the example flag set to "still works"
 }
