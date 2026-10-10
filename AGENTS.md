@@ -4,28 +4,29 @@ Guidance for AI coding agents and contributors working in this repository.
 
 ## Repository layout
 
-This repository contains **two separate Go modules**:
+This repository contains **three separate Go modules**:
 
 | Path | Module | Notes |
 |------|--------|-------|
-| `/` | `github.com/andrewheberle/simplecommand` | Core `Command` type. Minimal dependencies. Do not add `viper` here. |
+| `/` | `github.com/andrewheberle/simplecommand` | Core `Command` type. Minimal dependencies. Do not add `viper` or `koanf` here. |
 | `vipercommand/` | `github.com/andrewheberle/simplecommand/vipercommand` | Viper-enabled `Command`. Has its own `go.mod` and `go.sum`. |
+| `koanfcommand/` | `github.com/andrewheberle/simplecommand/koanfcommand` | koanf-enabled `Command`. Has its own `go.mod` and `go.sum`. |
 
-`vipercommand` depends on a **published** version of `simplecommand` (see
-`vipercommand/go.mod`), not the local copy. Do not add a `replace` directive.
-Users of `vipercommand` ignore `replace` directives, so testing against the
-local copy would hide breakage that users would then hit.
+`vipercommand` and `koanfcommand` depend on a **published** version of
+`simplecommand` (see their `go.mod` files), not the local copy. Do not add a
+`replace` directive. Users of these modules ignore `replace` directives, so
+testing against the local copy would hide breakage that users would then hit.
 
-To work on both modules together, create a `go.work` file in the repository
+To work on the modules together, create a `go.work` file in the repository
 root. It is in `.gitignore` and must not be committed:
 
 ```sh
-go work init . ./vipercommand
+go work init . ./vipercommand ./koanfcommand
 ```
 
-While a `go.work` file exists, Go builds `vipercommand` against the local
-`simplecommand`. Before committing, also run the `vipercommand` tests with
-`GOWORK=off` to check them against the published version, which is what users
+While a `go.work` file exists, Go builds `vipercommand` and `koanfcommand`
+against the local `simplecommand`. Before committing, also run their tests
+with `GOWORK=off` to check them against the published version, which is what users
 get.
 
 ### Releases
@@ -44,6 +45,7 @@ release:
 |--------|-----|-----------|
 | `simplecommand` | `vX.Y.Z` | `CHANGELOG.md` |
 | `vipercommand` | `vipercommand/vX.Y.Z` | `vipercommand/CHANGELOG.md` |
+| `koanfcommand` | `koanfcommand/vX.Y.Z` | `koanfcommand/CHANGELOG.md` |
 
 - `fix:` gives a patch release, and `feat:` a minor release.
 - Breaking changes (`!`) give a minor release while a module's version is
@@ -51,24 +53,25 @@ release:
 - Other types (`docs:`, `test:`, `ci:`, `chore:` and so on) don't trigger a
   release by themselves.
 - A commit counts towards a module if it changes files in that module.
-  `vipercommand/` and `.github/` are excluded from the root module.
+  `vipercommand/`, `koanfcommand/` and `.github/` are excluded from the root
+  module.
 - Configuration lives in `release-please-config.json`. The current version of
   each module is in `.release-please-manifest.json`, which release-please
   updates itself.
 
-When a `vipercommand` change needs an unreleased change in `simplecommand`,
-release in this order:
+When a `vipercommand` or `koanfcommand` change needs an unreleased change in
+`simplecommand`, release in this order:
 
 1. Merge the `simplecommand` change, then merge its release PR (creating
    `vX.Y.Z`).
-2. In `vipercommand/`, run
+2. In the module's directory, run
    `go get github.com/andrewheberle/simplecommand@vX.Y.Z && go mod tidy`.
-3. Merge the `vipercommand` change, then merge its release PR.
+3. Merge the module's change, then merge its release PR.
 
 ## Running tests
 
 Commands run from the root only cover the root module, so always run them in
-both modules:
+every module:
 
 ```sh
 go vet ./...
@@ -77,21 +80,26 @@ go test -race -cover ./...
 cd vipercommand
 go vet ./...
 go test -race -cover ./...
+
+cd ../koanfcommand
+go vet ./...
+go test -race -cover ./...
 ```
 
 CI (`.github/workflows/ci.yml`) runs the same steps on pull requests and on
-pushes to `main`. `go vet` and the tests must pass in both modules before you
+pushes to `main`. `go vet` and the tests must pass in every module before you
 commit.
 
 When editing workflows, pin every action to a full commit SHA with the
 release as a comment (`uses: owner/action@<sha> # vX.Y.Z`). Renovate keeps
 these up to date.
 
-CI also runs the `vipercommand` vet and tests against the local
-`simplecommand` through a temporary `go.work`. This catches a `simplecommand`
-change that would break `vipercommand` before it is released. If only this
-step fails, fix `vipercommand` or rethink the `simplecommand` change. Don't
-work around it with a `replace` directive. To reproduce it locally:
+CI also runs the `vipercommand` and `koanfcommand` vet and tests against the
+local `simplecommand` through a temporary `go.work`. This catches a
+`simplecommand` change that would break either module before it is released.
+If only this step fails, fix that module or rethink the `simplecommand`
+change. Don't work around it with a `replace` directive. To reproduce it
+locally (and likewise in `koanfcommand`):
 
 ```sh
 cd vipercommand
@@ -103,15 +111,18 @@ After changing dependencies, run `go mod tidy` in the affected module.
 
 ## Linting
 
-CI runs [golangci-lint](https://golangci-lint.run/) v2 on both modules. Both
+CI runs [golangci-lint](https://golangci-lint.run/) v2 on every module. All
 modules share the configuration in `.golangci.yml` at the repository root
-(golangci-lint searches parent directories for it). Run it in both modules
+(golangci-lint searches parent directories for it). Run it in every module
 before committing:
 
 ```sh
 golangci-lint run ./...
 
 cd vipercommand
+golangci-lint run ./...
+
+cd ../koanfcommand
 golangci-lint run ./...
 ```
 
@@ -152,10 +163,10 @@ Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):
 
 - **type**: one of `feat`, `fix`, `docs`, `test`, `refactor`, `perf`, `ci`,
   `build` or `chore`.
-- **scope**: use `vipercommand` for changes limited to that module, `deps`
-  for dependency updates (as Renovate does), and omit it for the root module.
-  There is no space between the type and the scope: `fix(vipercommand):`, not
-  `fix (vipercommand):`.
+- **scope**: use `vipercommand` or `koanfcommand` for changes limited to
+  that module, `deps` for dependency updates (as Renovate does), and omit it
+  for the root module. There is no space between the type and the scope:
+  `fix(vipercommand):`, not `fix (vipercommand):`.
 - **description**: imperative mood, lower case, no trailing full stop, for
   example `fix(vipercommand): let command line flags take precedence`.
 - **body**: explain what was wrong and why the change fixes it.
@@ -172,10 +183,11 @@ unrelated docs fix in separate commits.
 **Keep changes to each module in separate pull requests.** A squash-merged
 PR becomes one commit, and release-please counts that commit towards every
 module whose files it changes, whatever its scope. Every file outside
-`vipercommand/` belongs to the root module, apart from `.github/` (excluded in
-`release-please-config.json`). So a `fix(vipercommand):` or
-`feat(vipercommand):` PR must only change files under `vipercommand/` or
-`.github/`. Otherwise it also triggers a root module release. Put any other
+`vipercommand/` and `koanfcommand/` belongs to the root module, apart from
+`.github/` (excluded in `release-please-config.json`). So a
+`fix(vipercommand):` or `feat(vipercommand):` PR must only change files under
+`vipercommand/` or `.github/`, and likewise for `koanfcommand`. Otherwise it
+also triggers a root module release. Put any other
 changes, including to `AGENTS.md`, the README or `.golangci.yml`, in a
 separate PR.
 
@@ -194,11 +206,12 @@ separate PR.
   `os.Args`. Use `t.Setenv` for environment variables in tests. `Example`
   functions have no `*testing.T`, so they use `os.Setenv` with a deferred
   `os.Unsetenv` instead.
-- **Use the existing fixtures**, such as `vipercommand/testconfig.yml`,
+- **Use the existing fixtures**, such as `vipercommand/testconfig.yml` and
+  `koanfcommand/testconfig.yml`,
   before adding new ones. Tests run with the package directory as the working
   directory, so use relative paths.
 - **Every bug fix needs a regression test that fails without the fix.**
   Check this by running the test before you apply the fix.
-- **For `vipercommand`, test the precedence order:** command line flag, then
+- **For `vipercommand` and `koanfcommand`, test the precedence order:** command line flag, then
   environment variable, then configuration file, then flag default.
 - Coverage is reported to Codecov. New code should not reduce coverage.
