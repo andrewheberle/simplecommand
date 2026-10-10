@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.0](https://github.com/andrewheberle/simplecommand/compare/v0.6.0...v0.7.0) (2026-10-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* require Go 1.26 ([#27](https://github.com/andrewheberle/simplecommand/issues/27))
+
+### Build System
+
+* require Go 1.26 ([#27](https://github.com/andrewheberle/simplecommand/issues/27)) ([4cf36d2](https://github.com/andrewheberle/simplecommand/commit/4cf36d253460287146ecc08fb7b41f0606b5b0f0))
+
 ## [0.6.0](https://github.com/andrewheberle/simplecommand/compare/v0.5.2...v0.6.0) (2026-10-10)
 
 
