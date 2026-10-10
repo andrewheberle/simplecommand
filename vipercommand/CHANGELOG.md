@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.2](https://github.com/andrewheberle/simplecommand/compare/vipercommand/v0.6.1...vipercommand/v0.6.2) (2026-10-10)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/andrewheberle/simplecommand to v0.7.0 ([#36](https://github.com/andrewheberle/simplecommand/issues/36)) ([4a6886d](https://github.com/andrewheberle/simplecommand/commit/4a6886d110d4d6c7ac0154820a05bd1da58b430d))
+* **vipercommand:** read the configuration file after flags are parsed ([#42](https://github.com/andrewheberle/simplecommand/issues/42)) ([c6ef901](https://github.com/andrewheberle/simplecommand/commit/c6ef901816d021a87bcc61354e3f05dc500eab44))
+
 ## [0.6.1](https://github.com/andrewheberle/simplecommand/compare/vipercommand/v0.6.0...vipercommand/v0.6.1) (2026-10-10)
 
 
