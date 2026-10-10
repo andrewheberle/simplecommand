@@ -56,7 +56,7 @@ func New(name, short string, opts ...simplecommand.Option) *Command {
 }
 
 // Viper allows access to the underlying [*viper.Viper] instance.
-// Warning: This will return nil if called before [Command.Init] has run.
+// Warning: This will return nil if called before [Command.PreRun] has run.
 func (c *Command) Viper() *viper.Viper {
 	if c.viperlet == nil {
 		return nil
@@ -65,14 +65,20 @@ func (c *Command) Viper() *viper.Viper {
 	return c.viperlet.Viper()
 }
 
-// Init sets up environment variable and configuration file handling, then
-// runs [simplecommand.Command.Init] to set the command's descriptions.
+// PreRun sets up environment variable and configuration file handling, then
+// sets any command line flags that were not provided on the command line from
+// environment variables or the configuration file, and finally runs
+// [simplecommand.Command.PreRun].
 //
-// If you implement your own Init method, it must call this method before
-// adding any command line flags.
+// As this happens once command line flags have been parsed, the
+// [Command.Config], [Command.ConfigOptional] and [Command.EnvPrefix] fields
+// may be set from command line flags.
+//
+// If you implement your own PreRun method, it must call this method before
+// using any command line flag values.
 //
 // See [simplecobra.Commander] for more information.
-func (c *Command) Init(cd *simplecobra.Commandeer) error {
+func (c *Command) PreRun(this, runner *simplecobra.Commandeer) error {
 	// start with no options set
 	opts := make([]simpleviper.Option, 0)
 
@@ -93,26 +99,14 @@ func (c *Command) Init(cd *simplecobra.Commandeer) error {
 		}
 	}
 
-	// set up viperlet
+	// bring in env vars and read the config file. No flagset is passed, as
+	// that would also set flags given on the command line again, which
+	// appends to slice flags.
 	c.viperlet = simpleviper.New(opts...)
-
-	// bring in env vars and bind to flagset
-	if err := c.viperlet.Init(cd.CobraCommand.Flags()); err != nil {
+	if err := c.viperlet.Init(); err != nil {
 		return err
 	}
 
-	return c.Command.Init(cd)
-}
-
-// PreRun sets any command line flags that were not provided on the command
-// line from environment variables or the configuration file, then runs
-// [simplecommand.Command.PreRun].
-//
-// If you implement your own PreRun method, it must call this method before
-// using any command line flag values.
-//
-// See [simplecobra.Commander] for more information.
-func (c *Command) PreRun(this, runner *simplecobra.Commandeer) error {
 	// set any values from viper as flags once other steps are done, skipping
 	// any flags set on the command line so they take precedence
 	var err error

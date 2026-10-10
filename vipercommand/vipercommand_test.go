@@ -141,10 +141,63 @@ func TestInvalidEnvValue(t *testing.T) {
 	}
 }
 
-func TestViperBeforeInit(t *testing.T) {
-	command := vipercommand.New("example-command", "This is an example command")
+func TestConfigFromFlags(t *testing.T) {
+	tests := []struct {
+		name    string
+		env     string
+		args    []string
+		want    string
+		wantErr bool
+	}{
+		{"config file from flag", "", []string{"--config", "testconfig.yml"}, "from config file", false},
+		{"env prefix from flag", "from env var", []string{"--env-prefix", "cmd"}, "from env var", false},
+		{"env beats config file from flag", "from env var", []string{"--config", "testconfig.yml", "--env-prefix", "cmd"}, "from env var", false},
+		{"missing config file from flag", "", []string{"--config", "missing.yml"}, "", true},
+		{"optional config file from flag", "", []string{"--config", "missing.yml", "--config-optional"}, "", false},
+	}
 
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			command := &configFlagCommand{
+				Command: vipercommand.New("example-command", "This is an example command"),
+			}
+			// an empty value is treated as unset
+			t.Setenv("CMD_EXAMPLE", tt.env)
+
+			x, err := simplecobra.New(command)
+			if err != nil {
+				t.Fatal(err)
+			}
+			_, err = x.Execute(t.Context(), tt.args)
+			if gotErr := err != nil; gotErr != tt.wantErr {
+				t.Fatalf("got error %v, want error %v", err, tt.wantErr)
+			}
+
+			if command.exampleFlag != tt.want {
+				t.Errorf("got %q, want %q", command.exampleFlag, tt.want)
+			}
+		})
+	}
+}
+
+func TestViper(t *testing.T) {
+	command := &viperCommand{
+		Command: vipercommand.New("example-command", "This is an example command"),
+	}
 	if v := command.Viper(); v != nil {
-		t.Errorf("expected nil before Init, got %v", v)
+		t.Errorf("expected nil before PreRun, got %v", v)
+	}
+
+	command.Config = "testconfig.yml"
+	x, err := simplecobra.New(command)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := x.Execute(t.Context(), nil); err != nil {
+		t.Fatal(err)
+	}
+
+	if want := "from config file"; command.Viper().GetString("example") != want {
+		t.Errorf("got %q, want %q", command.Viper().GetString("example"), want)
 	}
 }

@@ -145,3 +145,52 @@ func ExampleNew_withEnvKeyReplacer() {
 	// Ran "example-command" with the example flag set to ""
 	// Ran "example-command" with the example long flag set to "from env var"
 }
+
+type configFlagCommand struct {
+	exampleFlag string
+
+	*vipercommand.Command
+}
+
+// As environment variables and the configuration file are read in PreRun, once command line flags have been parsed,
+// the Config, ConfigOptional and EnvPrefix fields can be set from command line flags
+func (c *configFlagCommand) Init(cd *simplecobra.Commandeer) error {
+	if err := c.Command.Init(cd); err != nil {
+		return err
+	}
+
+	cmd := cd.CobraCommand
+	cmd.Flags().StringVar(&c.Config, "config", "", "Configuration file")
+	cmd.Flags().BoolVar(&c.ConfigOptional, "config-optional", false, "Allow a missing configuration file")
+	cmd.Flags().StringVar(&c.EnvPrefix, "env-prefix", "", "Environment variable prefix")
+	cmd.Flags().StringVar(&c.exampleFlag, "example", "", "Example flag")
+
+	return nil
+}
+
+func (c *configFlagCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args []string) error {
+	fmt.Printf("Ran \"%s\" with the example flag set to \"%s\"\n", c.Name(), c.exampleFlag)
+
+	return nil
+}
+
+func ExampleNew_configFlag() {
+	// Here we create a command that takes the path to its configuration file from the --config flag
+	command := &configFlagCommand{
+		Command: vipercommand.New("example-command", "This is an example command (with fangs!)"),
+	}
+
+	// Set up simplecobra
+	x, err := simplecobra.New(command)
+	if err != nil {
+		panic(err)
+	}
+
+	// run our simplecobra command with the provided args, in a real program args would be os.Args[1:]
+	args := []string{"--config", "testconfig.yml"}
+	if _, err := x.Execute(context.Background(), args); err != nil {
+		panic(err)
+	}
+
+	// Output: Ran "example-command" with the example flag set to "from config file"
+}
