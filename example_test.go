@@ -6,6 +6,7 @@ import (
 
 	"github.com/andrewheberle/simplecommand"
 	"github.com/bep/simplecobra"
+	"github.com/spf13/cobra"
 )
 
 func ExampleNew() {
@@ -210,4 +211,140 @@ func ExampleWithDeprecated() {
 	}
 
 	// Output: Ran "old-command" with the example flag set to "still works"
+}
+
+func ExampleWithAliases() {
+	// Here we create a command with a sub-command that can also be run as "sc"
+	rootCommand := simplecommand.New("example-command", "This is an example command with an aliased sub-command",
+		simplecommand.WithSubCommands(
+			&ourCommand{
+				Command: simplecommand.New("sub-command", "This is an example sub-command", simplecommand.WithAliases("sc")),
+			},
+		),
+	)
+
+	// Set up simplecobra
+	x, err := simplecobra.New(rootCommand)
+	if err != nil {
+		panic(err)
+	}
+
+	// run our simplecobra command with the provided args, in a real program args would be os.Args[1:]
+	args := []string{"sc", "--example", "via alias"}
+	if _, err := x.Execute(context.Background(), args); err != nil {
+		panic(err)
+	}
+
+	// Output: Ran "sub-command" with the example flag set to "via alias"
+}
+
+func ExampleWithArgs() {
+	// Here we create a command that requires exactly one positional argument
+	command := simplecommand.New("example-command", "This is an example command that takes one argument",
+		simplecommand.WithArgs(cobra.ExactArgs(1)),
+	)
+
+	// Set up simplecobra
+	x, err := simplecobra.New(command)
+	if err != nil {
+		panic(err)
+	}
+
+	// run our simplecobra command without an argument, which returns an error
+	if _, err := x.Execute(context.Background(), nil); err != nil {
+		fmt.Printf("error: %s\n", err)
+	}
+
+	// Output: error: command error: accepts 1 arg(s), received 0
+}
+
+func ExampleWithExample() {
+	// Here we create a command with an example of its use shown in its help
+	command := simplecommand.New("example-command", "This is an example command",
+		simplecommand.WithExample("  example-command --help"),
+	)
+
+	// Set up simplecobra
+	x, err := simplecobra.New(command)
+	if err != nil {
+		panic(err)
+	}
+
+	// run our simplecobra command with the provided args, in a real program args would be os.Args[1:]
+	args := []string{"--help"}
+	if _, err := x.Execute(context.Background(), args); err != nil {
+		panic(err)
+	}
+
+	// Output:
+	// This is an example command
+	//
+	// Usage:
+	//   example-command [flags] [args]
+	//
+	// Examples:
+	//   example-command --help
+	//
+	// Flags:
+	//   -h, --help   help for example-command
+}
+
+func ExampleWithHidden() {
+	// Here we create a command with a hidden sub-command, which does not appear in help output
+	rootCommand := simplecommand.New("example-command", "This is an example command with a hidden sub-command",
+		simplecommand.WithSubCommands(
+			simplecommand.New("sub-command", "This is an example sub-command"),
+			simplecommand.New("debug-command", "This is a hidden sub-command", simplecommand.WithHidden()),
+		),
+	)
+
+	// Set up simplecobra
+	x, err := simplecobra.New(rootCommand)
+	if err != nil {
+		panic(err)
+	}
+
+	// run our simplecobra command with the provided args, in a real program args would be os.Args[1:]
+	args := []string{"--help"}
+	if _, err := x.Execute(context.Background(), args); err != nil {
+		panic(err)
+	}
+
+	// Output:
+	// This is an example command with a hidden sub-command
+	//
+	// Usage:
+	//   example-command [command] [flags]
+	//   example-command [command]
+	//
+	// Available Commands:
+	//   completion    Generate the autocompletion script for the specified shell
+	//   help          Help about any command
+	//   sub-command   This is an example sub-command
+	//
+	// Flags:
+	//   -h, --help   help for example-command
+	//
+	// Use "example-command [command] --help" for more information about a command.
+}
+
+func ExampleWithVersion() {
+	// Here we create a command with a version, which adds a --version flag
+	command := simplecommand.New("example-command", "This is an example command",
+		simplecommand.WithVersion("1.2.3"),
+	)
+
+	// Set up simplecobra
+	x, err := simplecobra.New(command)
+	if err != nil {
+		panic(err)
+	}
+
+	// run our simplecobra command with the provided args, in a real program args would be os.Args[1:]
+	args := []string{"--version"}
+	if _, err := x.Execute(context.Background(), args); err != nil {
+		panic(err)
+	}
+
+	// Output: example-command version 1.2.3
 }

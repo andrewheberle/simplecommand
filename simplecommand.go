@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/bep/simplecobra"
+	"github.com/spf13/cobra"
 )
 
 // Command is the basis for creating your own [simplecobra.Commander] quickly.
@@ -27,6 +28,14 @@ type Command struct {
 	Short      string
 	Long       string
 	Deprecated string
+
+	// Aliases, Example, Args, Hidden and Version are set on the command when
+	// using the default Init method. See [cobra.Command] for details of each.
+	Aliases []string
+	Example string
+	Args    cobra.PositionalArgs
+	Hidden  bool
+	Version string
 
 	// SubCommands holds the list of sub-commands for this command
 	SubCommands []simplecobra.Commander
@@ -61,8 +70,9 @@ func (c *Command) Commands() []simplecobra.Commander {
 	return c.SubCommands
 }
 
-// Init is where the short and long description of the command are set and also
-// where command line flags can be handled.
+// Init is where the descriptions and other settings of the command, such as
+// those set by [WithArgs] or [WithAliases], are applied and also where
+// command line flags can be handled.
 // The default is only suitable for implementing a deprecated command (see the
 // [WithDeprecated] [Option]) or a command that does not make use of any
 // command line flags.
@@ -73,6 +83,11 @@ func (c *Command) Init(cd *simplecobra.Commandeer) error {
 	cmd.Short = c.Short
 	cmd.Long = c.Long
 	cmd.Deprecated = c.Deprecated
+	cmd.Aliases = c.Aliases
+	cmd.Example = c.Example
+	cmd.Args = c.Args
+	cmd.Hidden = c.Hidden
+	cmd.Version = c.Version
 
 	return nil
 }
@@ -119,6 +134,50 @@ func WithDeprecated(reason string) Option {
 func WithSubCommands(subcommands ...simplecobra.Commander) Option {
 	return func(c *Command) {
 		c.SubCommands = append(c.SubCommands, subcommands...)
+	}
+}
+
+// WithAliases adds aliases that may be used in place of the command's name
+// when the default [Command.Init] is used. It may be passed more than once,
+// with each call adding to any existing aliases.
+func WithAliases(aliases ...string) Option {
+	return func(c *Command) {
+		c.Aliases = append(c.Aliases, aliases...)
+	}
+}
+
+// WithExample sets examples of how to use the command, which are shown in its
+// help when the default [Command.Init] is used.
+func WithExample(example string) Option {
+	return func(c *Command) {
+		c.Example = example
+	}
+}
+
+// WithArgs sets the validation of the command's positional arguments, such
+// as [cobra.ExactArgs] or [cobra.NoArgs], when the default [Command.Init] is
+// used. Invalid arguments return an error before [Command.PreRun] runs.
+func WithArgs(args cobra.PositionalArgs) Option {
+	return func(c *Command) {
+		c.Args = args
+	}
+}
+
+// WithHidden hides the command from the list of available commands in help
+// output when the default [Command.Init] is used. The command can still be
+// run.
+func WithHidden() Option {
+	return func(c *Command) {
+		c.Hidden = true
+	}
+}
+
+// WithVersion sets the command's version when the default [Command.Init] is
+// used. This adds a --version flag (and -v, if not already used) that
+// prints it, so is intended for the root command.
+func WithVersion(version string) Option {
+	return func(c *Command) {
+		c.Version = version
 	}
 }
 

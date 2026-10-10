@@ -6,6 +6,7 @@ import (
 
 	"github.com/andrewheberle/simplecommand"
 	"github.com/bep/simplecobra"
+	"github.com/spf13/cobra"
 )
 
 // names returns the names of the provided commands
@@ -79,6 +80,11 @@ func TestInit(t *testing.T) {
 		{"defaults", nil},
 		{"with long", []simplecommand.Option{simplecommand.WithLong("long description")}},
 		{"with deprecated", []simplecommand.Option{simplecommand.WithDeprecated("no longer used")}},
+		{"with aliases", []simplecommand.Option{simplecommand.WithAliases("sub", "sc")}},
+		{"with example", []simplecommand.Option{simplecommand.WithExample("root-command sub-command")}},
+		{"with args", []simplecommand.Option{simplecommand.WithArgs(cobra.NoArgs)}},
+		{"with hidden", []simplecommand.Option{simplecommand.WithHidden()}},
+		{"with version", []simplecommand.Option{simplecommand.WithVersion("1.2.3")}},
 	}
 
 	for _, tt := range tests {
@@ -110,6 +116,21 @@ func TestInit(t *testing.T) {
 			if cmd.Deprecated != sub.Deprecated {
 				t.Errorf("Deprecated = %q, want %q", cmd.Deprecated, sub.Deprecated)
 			}
+			if !slices.Equal(cmd.Aliases, sub.Aliases) {
+				t.Errorf("Aliases = %q, want %q", cmd.Aliases, sub.Aliases)
+			}
+			if cmd.Example != sub.Example {
+				t.Errorf("Example = %q, want %q", cmd.Example, sub.Example)
+			}
+			if (cmd.Args == nil) != (sub.Args == nil) {
+				t.Errorf("Args set = %v, want %v", cmd.Args != nil, sub.Args != nil)
+			}
+			if cmd.Hidden != sub.Hidden {
+				t.Errorf("Hidden = %v, want %v", cmd.Hidden, sub.Hidden)
+			}
+			if cmd.Version != sub.Version {
+				t.Errorf("Version = %q, want %q", cmd.Version, sub.Version)
+			}
 		})
 	}
 }
@@ -139,6 +160,64 @@ func TestWithSubCommandsCopies(t *testing.T) {
 	want := []string{"sub-one"}
 	if got := names(c.Commands()); !slices.Equal(got, want) {
 		t.Errorf("Commands() = %q, want %q", got, want)
+	}
+}
+
+func TestWithAliasesAppends(t *testing.T) {
+	c := simplecommand.New("example-command", "short description",
+		simplecommand.WithAliases("one"),
+		simplecommand.WithAliases("two", "three"),
+	)
+
+	if want := []string{"one", "two", "three"}; !slices.Equal(c.Aliases, want) {
+		t.Errorf("Aliases = %q, want %q", c.Aliases, want)
+	}
+}
+
+func TestWithAliasesRuns(t *testing.T) {
+	sub := simplecommand.New("sub-command", "short description", simplecommand.WithAliases("sc"))
+	root := simplecommand.New("root-command", "root command", simplecommand.WithSubCommands(sub))
+
+	x, err := simplecobra.New(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cd, err := x.Execute(t.Context(), []string{"sc"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if cd.CobraCommand.Name() != sub.Name() {
+		t.Errorf("ran %q, want %q", cd.CobraCommand.Name(), sub.Name())
+	}
+}
+
+func TestWithArgs(t *testing.T) {
+	tests := []struct {
+		name    string
+		args    []string
+		wantErr bool
+	}{
+		{"no args", nil, true},
+		{"one arg", []string{"one"}, false},
+		{"two args", []string{"one", "two"}, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := simplecommand.New("example-command", "short description", simplecommand.WithArgs(cobra.ExactArgs(1)))
+
+			x, err := simplecobra.New(c)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			_, err = x.Execute(t.Context(), tt.args)
+			if gotErr := err != nil; gotErr != tt.wantErr {
+				t.Errorf("got error %v, want error %v", err, tt.wantErr)
+			}
+		})
 	}
 }
 
