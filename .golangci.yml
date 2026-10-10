@@ -12,6 +12,7 @@ linters:
     - revive
     - unconvert
     - usestdlibvars
+    - usetesting
   settings:
     misspell:
       locale: UK
@@ -25,6 +26,10 @@ linters:
         # they may not use
         - name: unused-parameter
           disabled: true
+    usetesting:
+      # prefer t.Context() in tests (Go 1.24+)
+      context-background: true
+      context-todo: true
 
 formatters:
   enable:
