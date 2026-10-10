@@ -30,16 +30,40 @@ get.
 
 ### Releases
 
-Releases are tagged per module: `vX.Y.Z` for the root module and
-`vipercommand/vX.Y.Z` for the submodule.
+Releases are managed by [release-please](https://github.com/googleapis/release-please)
+(`.github/workflows/release-please.yml`). **Do not create tags or GitHub
+releases by hand, and do not edit `CHANGELOG.md` files.**
+
+After each push to `main`, release-please reads the Conventional Commit
+messages since the last release of each module. It then opens or updates a
+separate release PR for each module that has releasable changes, with the next
+version and changelog. Merging a release PR creates the tag and GitHub
+release:
+
+| Module | Tag | Changelog |
+|--------|-----|-----------|
+| `simplecommand` | `vX.Y.Z` | `CHANGELOG.md` |
+| `vipercommand` | `vipercommand/vX.Y.Z` | `vipercommand/CHANGELOG.md` |
+
+- `fix:` gives a patch release, and `feat:` a minor release.
+- Breaking changes (`!`) give a minor release while a module's version is
+  below 1.0.0, and a major release after that.
+- Other types (`docs:`, `test:`, `ci:`, `chore:` and so on) don't trigger a
+  release by themselves.
+- A commit counts towards a module if it changes files in that module.
+  `vipercommand/` is excluded from the root module.
+- Configuration lives in `release-please-config.json`. The current version of
+  each module is in `.release-please-manifest.json`, which release-please
+  updates itself.
 
 When a `vipercommand` change needs an unreleased change in `simplecommand`,
 release in this order:
 
-1. Merge the `simplecommand` change and tag it (`vX.Y.Z`).
+1. Merge the `simplecommand` change, then merge its release PR (creating
+   `vX.Y.Z`).
 2. In `vipercommand/`, run
    `go get github.com/andrewheberle/simplecommand@vX.Y.Z && go mod tidy`.
-3. Merge the `vipercommand` change and tag it (`vipercommand/vX.Y.Z`).
+3. Merge the `vipercommand` change, then merge its release PR.
 
 ## Running tests
 
@@ -55,8 +79,9 @@ go vet ./...
 go test -race -cover ./...
 ```
 
-CI (`.github/workflows/codecov.yml`) runs the same steps on every push.
-`go vet` and the tests must pass in both modules before you commit.
+CI (`.github/workflows/ci.yml`) runs the same steps on pull requests and on
+pushes to `main`. `go vet` and the tests must pass in both modules before you
+commit.
 
 CI also runs the `vipercommand` vet and tests against the local
 `simplecommand` through a temporary `go.work`. This catches a `simplecommand`
@@ -72,6 +97,29 @@ GOWORK="$(mktemp -d)/go.work" sh -c \
 
 After changing dependencies, run `go mod tidy` in the affected module.
 
+## Linting
+
+CI runs [golangci-lint](https://golangci-lint.run/) v2 on both modules. Both
+modules share the configuration in `.golangci.yml` at the repository root
+(golangci-lint searches parent directories for it). Run it in both modules
+before committing:
+
+```sh
+golangci-lint run ./...
+
+cd vipercommand
+golangci-lint run ./...
+```
+
+Fix reported issues rather than suppressing them. If a `//nolint` directive is
+unavoidable, name the linter and give a reason
+(`//nolint:errcheck // reason`), which the `nolintlint` linter enforces.
+Change `.golangci.yml` only when a rule is wrong for the whole codebase, and
+add a comment there explaining why.
+
+`golangci-lint fmt` applies the configured formatters (`gofmt` and
+`goimports`).
+
 ## Code formatting
 
 - Format all Go code with `gofmt` (or `go fmt ./...`). `gofmt -l .` must
@@ -81,6 +129,8 @@ After changing dependencies, run `go mod tidy` in the affected module.
   does.
 - Keep the existing style: short lower-case `//` comments explaining intent
   above non-obvious blocks, and early returns for errors.
+- Use UK English spelling in comments and documentation (for example
+  "initialise"). The `misspell` linter is set to the UK locale.
 - Never ignore an error that a function returns. Return it, or explain in a
   comment why it is safe to ignore.
 
