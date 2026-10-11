@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.3](https://github.com/andrewheberle/simplecommand/compare/vipercommand/v0.6.2...vipercommand/v0.6.3) (2026-10-11)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/andrewheberle/simplecommand to v0.8.0 ([#43](https://github.com/andrewheberle/simplecommand/issues/43)) ([e875aa2](https://github.com/andrewheberle/simplecommand/commit/e875aa2320dce92483c9dc9514ac183d4bc25abb))
+
 ## [0.6.2](https://github.com/andrewheberle/simplecommand/compare/vipercommand/v0.6.1...vipercommand/v0.6.2) (2026-10-10)
 
 
