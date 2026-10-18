@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/andrewheberle/simplecommand/compare/koanfcommand/v0.1.1...koanfcommand/v0.1.2) (2026-10-18)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/knadh/koanf/v2 to v2.4.1 ([#51](https://github.com/andrewheberle/simplecommand/issues/51)) ([2b6cb8d](https://github.com/andrewheberle/simplecommand/commit/2b6cb8d5cdf99508cd39035149298d2edb47dca5))
+
 ## [0.1.1](https://github.com/andrewheberle/simplecommand/compare/koanfcommand/v0.1.0...koanfcommand/v0.1.1) (2026-10-10)
 
 
