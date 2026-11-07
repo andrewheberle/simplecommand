@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.4](https://github.com/andrewheberle/simplecommand/compare/vipercommand/v0.6.3...vipercommand/v0.6.4) (2026-11-07)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/spf13/pflag to v1.1.0 ([#54](https://github.com/andrewheberle/simplecommand/issues/54)) ([a831594](https://github.com/andrewheberle/simplecommand/commit/a8315941e3af7f05aef11773453eb0cda341793c))
+
 ## [0.6.3](https://github.com/andrewheberle/simplecommand/compare/vipercommand/v0.6.2...vipercommand/v0.6.3) (2026-10-11)
 
 
