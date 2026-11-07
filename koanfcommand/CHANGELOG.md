@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/andrewheberle/simplecommand/compare/koanfcommand/v0.1.2...koanfcommand/v0.1.3) (2026-11-07)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/spf13/pflag to v1.1.0 ([#54](https://github.com/andrewheberle/simplecommand/issues/54)) ([a831594](https://github.com/andrewheberle/simplecommand/commit/a8315941e3af7f05aef11773453eb0cda341793c))
+
 ## [0.1.2](https://github.com/andrewheberle/simplecommand/compare/koanfcommand/v0.1.1...koanfcommand/v0.1.2) (2026-10-18)
 
 
